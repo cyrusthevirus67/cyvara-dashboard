@@ -96,8 +96,3 @@ export default async function DashboardPage() {
   );
 }
 
-        </tbody>
-      </table>
-    </div>
-  </div>
-);
