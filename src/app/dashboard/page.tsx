@@ -33,89 +33,69 @@ export default async function DashboardPage() {
     .select("id,name,phone,service_requested,status,last_activity")
     .order("last_activity", { ascending: false })
     .limit(50);
-return (
-  <div className="wrap">
-    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
-      <div>
-        <div className="pill" style={{ marginBottom: 8 }}>
-          <span>Cyvara Client Portal</span>
+
+  return (
+    <div style={{ maxWidth: 1100, margin: "30px auto", padding: 16 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
+        <div>
+          <h1 style={{ margin: 0 }}>Dashboard</h1>
+          <div style={{ color: "#6b7280", marginTop: 6 }}>
+            {account?.business_name || "Your Business"} • {user.email}
+          </div>
         </div>
-        <h1 style={{ margin: 0, fontSize: 28, letterSpacing: "-0.02em" }}>Dashboard</h1>
-        <div className="muted" style={{ marginTop: 6 }}>
-          {account?.business_name || "Your Business"} • {user.email}
-        </div>
+
+        <form action="/auth/logout" method="post">
+          <button style={{ padding: "10px 12px", borderRadius: 12, border: "1px solid #e5e7eb", background: "white" }}>
+            Log out
+          </button>
+        </form>
       </div>
 
-      <form action="/auth/logout" method="post">
-        <button className="btn primary" type="submit">Log out</button>
-      </form>
-    </div>
-
-    <div className="stat-grid">
-      <div className="card">
-        <div className="muted" style={{ fontSize: 12, textTransform: "uppercase", letterSpacing: "0.12em" }}>Total Leads</div>
-        <div style={{ fontSize: 24, fontWeight: 800 }}>{leads?.length || 0}</div>
-      </div>
-      <div className="card">
-        <div className="muted" style={{ fontSize: 12, textTransform: "uppercase", letterSpacing: "0.12em" }}>New</div>
-        <div style={{ fontSize: 24, fontWeight: 800 }}>
-          {(leads as Lead[] | null)?.filter(l => l.status === "New").length || 0}
+      <div style={{ marginTop: 18, border: "1px solid #e5e7eb", borderRadius: 16, overflow: "hidden" }}>
+        <div style={{ padding: 12, background: "#f9fafb", borderBottom: "1px solid #e5e7eb", fontWeight: 900 }}>
+          Leads
         </div>
-      </div>
-      <div className="card">
-        <div className="muted" style={{ fontSize: 12, textTransform: "uppercase", letterSpacing: "0.12em" }}>Booked</div>
-        <div style={{ fontSize: 24, fontWeight: 800 }}>
-          {(leads as Lead[] | null)?.filter(l => l.status === "Booked").length || 0}
-        </div>
-      </div>
-    </div>
 
-    <div className="card">
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-        <div style={{ fontWeight: 800 }}>Leads</div>
-        <div className="muted" style={{ fontSize: 12 }}>Most recent 50</div>
-      </div>
-
-      <table className="table">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Phone</th>
-            <th>Service</th>
-            <th>Status</th>
-            <th>Last Activity</th>
-          </tr>
-        </thead>
-        <tbody>
-          {(leads as Lead[] | null)?.map((l) => (
-            <tr key={l.id}>
-              <td>
-                <Link href={`/leads/${l.id}`} style={{ fontWeight: 700 }}>
-                  {l.name || "Unknown"}
-                </Link>
-              </td>
-              <td style={{ fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas" }}>
-                {l.phone || "—"}
-              </td>
-              <td>{l.service_requested || "—"}</td>
-              <td>
-                <span className={
-                  l.status === "Booked" ? "badge green" :
-                  l.status === "Qualified" ? "badge" :
-                  l.status === "Lost" ? "badge red" :
-                  "badge yellow"
-                }>
-                  {l.status}
-                </span>
-              </td>
-              <td>{new Date(l.last_activity).toLocaleString()}</td>
+        <table style={{ width: "100%", borderCollapse: "collapse" }}>
+          <thead>
+            <tr style={{ textAlign: "left", color: "#6b7280", fontSize: 13 }}>
+              <th style={{ padding: 12 }}>Name</th>
+              <th style={{ padding: 12 }}>Phone</th>
+              <th style={{ padding: 12 }}>Service</th>
+              <th style={{ padding: 12 }}>Status</th>
+              <th style={{ padding: 12 }}>Last Activity</th>
             </tr>
-          ))}
-          {!leads?.length ? (
-            <tr>
-              <td colSpan={5} className="muted">No leads yet. Insert a test lead in Supabase.</td>
-            </tr>
-          ) : null}
+          </thead>
+          <tbody>
+            {(leads as Lead[] | null)?.map((l) => (
+              <tr key={l.id} style={{ borderTop: "1px solid #f3f4f6" }}>
+                <td style={{ padding: 12 }}>
+                  <Link href={`/leads/${l.id}`} style={{ fontWeight: 900, color: "#111827", textDecoration: "none" }}>
+                    {l.name || "Unknown"}
+                  </Link>
+                </td>
+                <td style={{ padding: 12, fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas" }}>
+                  {l.phone || "—"}
+                </td>
+                <td style={{ padding: 12 }}>{l.service_requested || "—"}</td>
+                <td style={{ padding: 12 }}>{l.status}</td>
+                <td style={{ padding: 12 }}>{new Date(l.last_activity).toLocaleString()}</td>
+              </tr>
+            ))}
+            {!leads?.length ? (
+              <tr>
+                <td colSpan={5} style={{ padding: 14, color: "#6b7280" }}>
+                  No leads yet. Insert a test lead in Supabase.
+                </td>
+              </tr>
+            ) : null}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
         </tbody>
       </table>
     </div>
