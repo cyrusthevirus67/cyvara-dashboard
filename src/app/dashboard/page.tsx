@@ -34,57 +34,103 @@ export default async function DashboardPage() {
     .order("last_activity", { ascending: false })
     .limit(50);
 
+  const leadList = (leads as Lead[] | null) ?? [];
+  const totalLeads = leadList.length;
+  const newLeads = leadList.filter((l) => l.status === "New").length;
+  const qualifiedLeads = leadList.filter((l) => l.status === "Qualified").length;
+  const bookedLeads = leadList.filter((l) => l.status === "Booked").length;
+  const latestActivity = leadList[0]?.last_activity
+    ? new Date(leadList[0].last_activity).toLocaleString()
+    : "—";
+
   return (
-    <div style={{ maxWidth: 1100, margin: "30px auto", padding: 16 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
+    <div className="wrap">
+      <div className="topbar">
         <div>
-          <h1 style={{ margin: 0 }}>Dashboard</h1>
-          <div style={{ color: "#6b7280", marginTop: 6 }}>
+          <div className="pill">Client Portal</div>
+          <h1 className="page-title">Dashboard</h1>
+          <div className="muted">
             {account?.business_name || "Your Business"} • {user.email}
           </div>
         </div>
 
         <form action="/auth/logout" method="post">
-          <button style={{ padding: "10px 12px", borderRadius: 12, border: "1px solid #e5e7eb", background: "white" }}>
+          <button className="btn primary" type="submit">
             Log out
           </button>
         </form>
       </div>
 
-      <div style={{ marginTop: 18, border: "1px solid #e5e7eb", borderRadius: 16, overflow: "hidden" }}>
-        <div style={{ padding: 12, background: "#f9fafb", borderBottom: "1px solid #e5e7eb", fontWeight: 900 }}>
-          Leads
+      <div className="stat-grid">
+        <div className="card stat-card">
+          <div className="stat-label">Total leads</div>
+          <div className="stat-value">{totalLeads}</div>
+          <div className="stat-sub">Last activity: {latestActivity}</div>
+        </div>
+        <div className="card stat-card">
+          <div className="stat-label">New</div>
+          <div className="stat-value">{newLeads}</div>
+          <div className="stat-sub">Needs follow-up</div>
+        </div>
+        <div className="card stat-card">
+          <div className="stat-label">Qualified</div>
+          <div className="stat-value">{qualifiedLeads}</div>
+          <div className="stat-sub">High intent</div>
+        </div>
+        <div className="card stat-card">
+          <div className="stat-label">Booked</div>
+          <div className="stat-value">{bookedLeads}</div>
+          <div className="stat-sub">Converted</div>
+        </div>
+      </div>
+
+      <div className="card">
+        <div className="table-head">
+          <div className="table-title">Recent leads</div>
+          <div className="muted">Most recent 50</div>
         </div>
 
-        <table style={{ width: "100%", borderCollapse: "collapse" }}>
+        <table className="table">
           <thead>
-            <tr style={{ textAlign: "left", color: "#6b7280", fontSize: 13 }}>
-              <th style={{ padding: 12 }}>Name</th>
-              <th style={{ padding: 12 }}>Phone</th>
-              <th style={{ padding: 12 }}>Service</th>
-              <th style={{ padding: 12 }}>Status</th>
-              <th style={{ padding: 12 }}>Last Activity</th>
+            <tr>
+              <th>Name</th>
+              <th>Phone</th>
+              <th>Service</th>
+              <th>Status</th>
+              <th>Last activity</th>
             </tr>
           </thead>
           <tbody>
-            {(leads as Lead[] | null)?.map((l) => (
-              <tr key={l.id} style={{ borderTop: "1px solid #f3f4f6" }}>
-                <td style={{ padding: 12 }}>
-                  <Link href={`/leads/${l.id}`} style={{ fontWeight: 900, color: "#111827", textDecoration: "none" }}>
+            {leadList.map((l) => (
+              <tr key={l.id} className="table-row">
+                <td>
+                  <Link href={`/leads/${l.id}`} className="link-strong">
                     {l.name || "Unknown"}
                   </Link>
                 </td>
-                <td style={{ padding: 12, fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas" }}>
-                  {l.phone || "—"}
+                <td className="mono">{l.phone || "—"}</td>
+                <td>{l.service_requested || "—"}</td>
+                <td>
+                  <span
+                    className={
+                      l.status === "Booked"
+                        ? "badge green"
+                        : l.status === "Qualified"
+                        ? "badge"
+                        : l.status === "Lost"
+                        ? "badge red"
+                        : "badge yellow"
+                    }
+                  >
+                    {l.status}
+                  </span>
                 </td>
-                <td style={{ padding: 12 }}>{l.service_requested || "—"}</td>
-                <td style={{ padding: 12 }}>{l.status}</td>
-                <td style={{ padding: 12 }}>{new Date(l.last_activity).toLocaleString()}</td>
+                <td>{new Date(l.last_activity).toLocaleString()}</td>
               </tr>
             ))}
-            {!leads?.length ? (
+            {!leadList.length ? (
               <tr>
-                <td colSpan={5} style={{ padding: 14, color: "#6b7280" }}>
+                <td colSpan={5} className="empty-row">
                   No leads yet. Insert a test lead in Supabase.
                 </td>
               </tr>
@@ -95,4 +141,3 @@ export default async function DashboardPage() {
     </div>
   );
 }
-
